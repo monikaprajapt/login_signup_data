@@ -1,9 +1,12 @@
+ 
 const Hapi = require('@hapi/hapi');
 const Inert = require('@hapi/inert');
 const Vision = require('@hapi/vision');
 const HapiSwagger = require('hapi-swagger');
 const Pack = require('./package');
 const Joi = require('joi');
+const CrudServices=require('./services/crud_service')
+const services=new CrudServices()
 
 
 const server = Hapi.server({
@@ -31,19 +34,6 @@ const init = async () => {
   console.log(`Server running at: ${server.info.uri}`);
 };
 
-  
-server.route({
-  method: 'GET',
-  path: '/user',
-  options: {
-    tags: ['api'],
-    description: 'Get all users',
-    notes: 'Returns an array of user objects',
-  },
-  handler: (req, h) => {
-    return "<h1>I'm Working</h1>"
-  }
-});
 
 //     // create
 server.route({
@@ -56,14 +46,13 @@ server.route({
     validate: {
       payload: Joi.object({
         name: Joi.string().required(),
-        email: Joi.string().email().required(),
-        password: Joi.string().min(8).required(),
+        email: Joi.string().required(),
+        password: Joi.string().required(),
       })
     },
   },
   handler: async (req, h) => {
     try {
-      // console.log(req.payload);
       const result = await services.create(req.payload)
       if (!result) {
         return h.response("already exists").code(400)
@@ -73,21 +62,26 @@ server.route({
       return h.response("I'm post").code(500)
     }
   }
+     
 })
-
-//     // read
 server.route({
   method: 'get',
-  path: '/user/{id}',
+  path: '/user/{email}',
   options: {
     tags: ['api'],
     description: 'Get all users',
     notes: 'Returns an array of user objects',
-  },
+    validate: {
+          query: Joi.object({
+            email: Joi.string().required(),
+            password: Joi.string().required(),
+          }),
+        },
+    },
   handler: async (req, h) => {
     try {
-      const id = parseInt(req.params.id)
-      const result = await services.read(id)
+      const email = req.query.email
+      const result = await services.read(email)
       if (!result.error) {
         return h.response(result).code(200)
       }
@@ -99,52 +93,5 @@ server.route({
   }
 })
 
-// //     // update
-server.route({
-  method: 'put',
-  path: '/user/{id}',
-  options: {
-    tags: ['api'],
-    description: 'Get all users',
-    notes: 'Returns an array of user objects',
-  },
-  handler: async (req, h) => {
-    try {
-      const id = parseInt(req.params.id)
-      const result = await services.update(id, req.payload)
-      if (!result.error) {
-        return h.response(result).code(200)
-      }
-      return h.response("data not found").code(400)
-
-    } catch (error) {
-      return h.response("internal error").code(500)
-    }
-  }
-})
-
-//     // delete
-server.route({
-  method: 'delete',
-  path: '/user/{id}',
-  options: {
-    tags: ['api'],
-    description: 'Get all users',
-    notes: 'Returns an array of user objects',
-  },
-  handler: async (req, h) => {
-    try {
-      const id = parseInt(req.params.id)
-      const result = await services.delete(id)
-      if (!result.error) {
-        return h.response(result).code(200)
-      }
-      return h.response("data not found").code(400)
-
-    } catch (error) {
-      return h.response("internal error").code(500)
-    }
-  }
-})
 
 init();
