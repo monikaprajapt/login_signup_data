@@ -93,5 +93,153 @@ server.route({
   }
 })
 
+// todo
+
+
+
+server.route({
+  method: 'GET',
+  path: '/todo_list',
+  options: {
+    tags: ['api'],
+    description: 'Get all users',
+    notes: 'Returns an array of user objects',
+  },
+  handler: async(req, h) => {
+    console.log(req.params.id,"bbbbbbbbbbbbbbbbb")
+    const result = await services.todoread(req.params.id)
+    return h.response(result).code(201)
+  }
+});
+
+//     // create
+server.route({
+  method: 'post',
+  path: '/todo_list',
+  options: {
+    tags: ['api'],
+    description: 'Create a new user',
+    notes: 'Returns the created user object',
+    validate: {
+      payload: Joi.object({
+        titel: Joi.string().required(),
+        date: Joi.number().integer().required(),
+      })
+    },
+  },
+  handler: async (req, h) => {
+    try {
+      console.log(req.payload);
+      const result = await services.todocreate(req.payload)
+      console.log(result,"12345678")
+      if (!result) {
+        return h.response("already exists").code(400)
+      }
+      return h.response(result).code(201)
+    } catch (error) {
+      return h.response("I'm post").code(500)
+    }
+  }
+})
+
+
+//     // read
+server.route({
+  method: 'get',
+  path: '/todo_list/{id}',
+  options: {
+    tags: ['api'],
+    description: 'Get all users',
+    notes: 'Returns an array of user objects',
+    validate: {
+          params: Joi.object({
+            id: Joi.number().integer().required(),
+          }),
+        },
+    },
+  handler: async (req, h) => {
+    try {
+      console.log(req.params)
+      const id = parseInt(req.params.id)
+      const result = await services.todoread(id)
+      console.log(result)
+      if (!result.error) {
+        return h.response(result).code(200)
+      }
+      return h.response("data not found").code(400)
+
+    } catch (error) {
+      return h.response("internal error").code(500)
+    }
+  }
+})
+
+// //     // update
+server.route({
+  method: 'put',
+  path: '/todo_list/{id}',
+  options: {
+    tags: ['api'],
+    description: 'Get all users',
+    notes: 'Returns an array of user objects',
+    validate: {
+      params: Joi.object({
+        id: Joi.number().integer().required(),
+      }),
+      payload: Joi.object({
+        titel: Joi.string().required(),
+        date: Joi.number().integer().required(),
+      }),      
+    },
+  },
+  handler: async (req, h) => {
+    try {
+       
+      const iid = parseInt(req.params.id)
+      console.log(iid,"nnnnnnn")
+      const result = await services.todoupdate(iid,req.payload)
+
+      console.log(result,"111111111111111111")
+      if (!result.error) {
+        return h.response(result).code(200)
+      }
+      return h.response("data not found").code(400)
+
+    } catch (error) {
+      console.log(error,"mmmmmmmmmmmmm")
+      return h.response("internal error").code(500)
+    }
+  }
+})
+
+//     // delete
+server.route({
+  method: 'delete',
+  path: '/todo_list/{id}',
+  options: {
+    tags: ['api'],
+    description: 'Get all users',
+    notes: 'Returns an array of user objects',
+    validate: {
+              params: Joi.object({
+                id: Joi.number().integer().required(),
+              }),
+            },
+  },
+  handler: async (req, h) => {
+    try {
+      const id = parseInt(req.params.id)
+      const result = await services.tododelete(id)
+      if (!result.error) {
+        return h.response(result).code(200)
+      }
+      return h.response("data not found").code(400)
+
+    } catch (error) {
+      return h.response("internal error").code(500)
+    }
+  }
+})
+
 
 init();
