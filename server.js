@@ -5,6 +5,7 @@ const Vision = require('@hapi/vision');
 const HapiSwagger = require('hapi-swagger');
 const Pack = require('./package');
 const Joi = require('joi');
+const cors=require('cors');
 const CrudServices=require('./services/crud_service')
 const services=new CrudServices()
 
@@ -12,6 +13,9 @@ const services=new CrudServices()
 const server = Hapi.server({
   port: process.env.PORT || 3000,
   host: "0.0.0.0",
+  "routes":{
+    "cors":true
+  }
 });
 
 const init = async () => {
