@@ -5,7 +5,7 @@ const Vision = require('@hapi/vision');
 const HapiSwagger = require('hapi-swagger');
 const Pack = require('./package');
 const Joi = require('joi');
-const cors=require('cors');
+// const cors=require('cors');
 const CrudServices=require('./services/crud_service')
 const services=new CrudServices()
 
